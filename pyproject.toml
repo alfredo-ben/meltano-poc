@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "el-meltano"
+version = "0.1.0"
+description = ""
+authors = ["alfredo-ben <alfredo@thanksben.com>"]
+readme = "README.md"
+packages = [{include = "el_meltano"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
