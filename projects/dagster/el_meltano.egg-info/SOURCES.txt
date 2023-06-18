@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+setup.cfg
+setup.py
+el_meltano/__init__.py
+el_meltano/assets.py
+el_meltano.egg-info/PKG-INFO
+el_meltano.egg-info/SOURCES.txt
+el_meltano.egg-info/dependency_links.txt
+el_meltano.egg-info/requires.txt
+el_meltano.egg-info/top_level.txt

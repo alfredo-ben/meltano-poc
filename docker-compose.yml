@@ -1,0 +1,100 @@
+version: '3.8'
+
+x-meltano-image:
+  &meltano-image
+  image: el-meltano-project:dev
+  build: .
+
+services:
+  meltano-ui:
+    <<: *meltano-image
+    command: ui
+    env_file:
+      - .env
+    volumes:
+      - meltano_elt_logs_data:/project/.meltano/logs/elt
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+    depends_on:
+      - meltano-system-db
+    networks:
+      - meltano
+    restart: unless-stopped
+
+  meltano-system-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: meltano
+      PGDATA: /var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    volumes:
+      - meltano_postgresql_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    networks:
+      - meltano
+    restart: unless-stopped
+
+  airflow-scheduler:
+    <<: *meltano-image
+    command: invoke airflow scheduler
+    env_file:
+      - .env
+    volumes:
+      - meltano_elt_logs_data:/project/.meltano/logs/elt
+    expose:
+      - 8793
+    depends_on:
+      - meltano-system-db
+      - airflow-db
+    networks:
+      - meltano
+      - airflow
+    restart: unless-stopped
+
+  airflow-webserver:
+    <<: *meltano-image
+    command: invoke airflow webserver
+    env_file:
+      - .env
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - meltano-system-db
+      - airflow-db
+    networks:
+      - meltano
+      - airflow
+    restart: unless-stopped
+
+  airflow-db:
+    image: postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: airflow
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - airflow_postgresql_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    networks:
+      - airflow
+    restart: unless-stopped
+
+networks:
+  meltano:
+  airflow:
+
+volumes:
+  meltano_postgresql_data:
+    driver: local
+  meltano_elt_logs_data:
+    driver: local
+  airflow_postgresql_data:
+    driver: local
